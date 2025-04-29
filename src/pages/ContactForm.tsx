@@ -27,7 +27,7 @@ const ContactForm = () => {
       const resultInfo = quizResults[resultType];
       const formData = new FormData();
       
-      formData.append("to", "margo.kor@bk.ru");
+      formData.append("to", "jambomambo101@gmail.com");
       formData.append("subject", `Заявка на курс капельниц: ${resultInfo.title}`);
       formData.append("text", `
         Результат теста: ${resultInfo.title}
