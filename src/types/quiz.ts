@@ -18,4 +18,5 @@ export interface UserInfo {
   firstName: string;
   middleName: string;
   phone: string;
+  consentGiven: boolean;
 }

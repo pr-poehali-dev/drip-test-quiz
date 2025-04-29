@@ -23,19 +23,48 @@ const ContactForm = () => {
     setIsSubmitting(true);
 
     try {
-      // Формируем данные для отправки
+      // Формируем данные для отправки в Google таблицу
       const resultInfo = quizResults[resultType];
-      const formData = new FormData();
       
-      formData.append("to", "jambomambo101@gmail.com");
-      formData.append("subject", `Заявка на курс капельниц: ${resultInfo.title}`);
-      formData.append("text", `
+      // Готовим данные для отправки email
+      const emailFormData = new FormData();
+      
+      emailFormData.append("to", "jambomambo101@gmail.com");
+      emailFormData.append("subject", `Заявка на курс капельниц: ${resultInfo.title}`);
+      emailFormData.append("text", `
         Результат теста: ${resultInfo.title}
         Имя: ${firstName}
         Отчество: ${middleName}
         Телефон: ${phone}
         Рекомендованные анализы: ${resultInfo.analysis}
       `);
+
+      // Отправка данных в Google таблицу
+      const sheetData = {
+        timestamp: new Date().toISOString(),
+        firstName: firstName,
+        middleName: middleName,
+        phone: phone,
+        resultType: resultType,
+        resultTitle: resultInfo.title,
+        analysis: resultInfo.analysis
+      };
+
+      // URL Google Apps Script Web App, который обрабатывает запрос
+      const sheetsUrl = "https://script.google.com/macros/s/AKfycbx0V1v9qZy3oeNZ8-IWGXcUPlY5HnvN5mBAZm_Iu1TKQoL8JvYcNBDQQQ8S1cER9Wzk/exec";
+      
+      // Создаём FormData для отправки в таблицу
+      const sheetFormData = new FormData();
+      Object.entries(sheetData).forEach(([key, value]) => {
+        sheetFormData.append(key, value as string);
+      });
+
+      // Отправка данных в Google таблицу (без ожидания ответа)
+      fetch(sheetsUrl, {
+        method: "POST",
+        body: sheetFormData,
+        mode: "no-cors", // Важно для CORS-политик Google
+      });
 
       // В реальном приложении здесь был бы запрос к API для отправки email
       // Имитируем отправку

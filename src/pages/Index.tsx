@@ -4,22 +4,35 @@ import { quizQuestions, quizResults } from "@/data/quizData";
 import { AnswerMap } from "@/types/quiz";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import QuestionCard from "@/components/QuestionCard";
 import ResultCard from "@/components/ResultCard";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(-1); // Start at -1 for consent page
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [showResult, setShowResult] = useState(false);
   const [resultType, setResultType] = useState<"detox" | "weight" | "energy">("detox");
+  const [consentGiven, setConsentGiven] = useState(false);
 
   const totalQuestions = quizQuestions.length;
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const progress = ((currentQuestionIndex) / totalQuestions) * 100;
+  const currentQuestion = currentQuestionIndex >= 0 ? quizQuestions[currentQuestionIndex] : null;
+  const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
 
   const handleSelectAnswer = (value: number) => {
     setAnswers({ ...answers, [currentQuestionIndex]: value });
+  };
+
+  const handleConsentChange = (checked: boolean) => {
+    setConsentGiven(checked);
+  };
+
+  const handleStartQuiz = () => {
+    if (consentGiven) {
+      setCurrentQuestionIndex(0);
+    }
   };
 
   const handleNext = () => {
@@ -34,6 +47,8 @@ const Index = () => {
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
+    } else if (currentQuestionIndex === 0) {
+      setCurrentQuestionIndex(-1); // Go back to consent page
     }
   };
 
@@ -74,6 +89,34 @@ const Index = () => {
     }
   };
 
+  const renderConsentPage = () => (
+    <div className="p-6 animate-fade-in">
+      <h2 className="text-xl font-bold mb-4">Согласие на обработку персональных данных</h2>
+      <p className="mb-6 text-gray-700">
+        Прежде чем начать тест, пожалуйста, ознакомьтесь с нашей политикой обработки персональных данных. 
+        Нажимая кнопку "Начать тест", вы соглашаетесь с обработкой ваших персональных данных в соответствии 
+        с Федеральным законом "О персональных данных" от 27.07.2006 N 152-ФЗ.
+      </p>
+      <div className="flex items-center space-x-2 mb-6">
+        <Checkbox 
+          id="consent" 
+          checked={consentGiven} 
+          onCheckedChange={handleConsentChange} 
+        />
+        <Label htmlFor="consent" className="cursor-pointer">
+          Я согласен на обработку моих персональных данных
+        </Label>
+      </div>
+      <Button 
+        onClick={handleStartQuiz} 
+        disabled={!consentGiven}
+        className="w-full"
+      >
+        Начать тест
+      </Button>
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-secondary py-10 px-4">
       <div className="quiz-container mx-auto w-full max-w-3xl bg-white rounded-xl shadow-xl overflow-hidden">
@@ -87,7 +130,9 @@ const Index = () => {
         </header>
 
         <div className="p-6">
-          {!showResult ? (
+          {currentQuestionIndex === -1 && !showResult ? (
+            renderConsentPage()
+          ) : !showResult ? (
             <>
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2">
@@ -97,17 +142,18 @@ const Index = () => {
                 <Progress value={progress} className="h-2" />
               </div>
 
-              <QuestionCard
-                question={currentQuestion}
-                currentAnswer={answers[currentQuestionIndex] || null}
-                onSelectAnswer={handleSelectAnswer}
-              />
+              {currentQuestion && (
+                <QuestionCard
+                  question={currentQuestion}
+                  currentAnswer={answers[currentQuestionIndex] || null}
+                  onSelectAnswer={handleSelectAnswer}
+                />
+              )}
 
               <div className="flex justify-between mt-8">
                 <Button
                   variant="outline"
                   onClick={handlePrevious}
-                  disabled={currentQuestionIndex === 0}
                 >
                   Назад
                 </Button>
