@@ -1,14 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface ResultProps {
   title: string;
   description: string;
   image: string;
+  analysis: string;
   onRestart: () => void;
+  onContinue: () => void;
 }
 
-const ResultCard = ({ title, description, image, onRestart }: ResultProps) => {
+const ResultCard = ({ title, description, image, analysis, onRestart, onContinue }: ResultProps) => {
   return (
     <div className="result-animation">
       <Card className="w-full max-w-3xl mx-auto overflow-hidden">
@@ -27,10 +30,20 @@ const ResultCard = ({ title, description, image, onRestart }: ResultProps) => {
               />
             </div>
             <div className="w-full md:w-2/3">
-              <p className="text-base mb-6">{description}</p>
-              <Button onClick={onRestart} className="w-full md:w-auto">
-                Пройти тест снова
-              </Button>
+              <p className="text-base mb-4">{description}</p>
+              <Separator className="my-4" />
+              <div className="bg-primary/5 p-4 rounded-lg mb-6">
+                <h3 className="font-semibold text-primary mb-2">Необходимые анализы:</h3>
+                <p className="text-sm">{analysis}</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button onClick={onRestart} variant="outline" className="flex-1">
+                  Пройти тест снова
+                </Button>
+                <Button onClick={onContinue} className="flex-1">
+                  Оформить заявку
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

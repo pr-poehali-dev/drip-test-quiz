@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { quizQuestions, quizResults } from "@/data/quizData";
 import { AnswerMap } from "@/types/quiz";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import QuestionCard from "@/components/QuestionCard";
 import ResultCard from "@/components/ResultCard";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [showResult, setShowResult] = useState(false);
@@ -39,6 +41,10 @@ const Index = () => {
     setCurrentQuestionIndex(0);
     setAnswers({});
     setShowResult(false);
+  };
+
+  const handleContinue = () => {
+    navigate("/contact", { state: { resultType } });
   };
 
   const calculateResult = () => {
@@ -120,7 +126,9 @@ const Index = () => {
               title={quizResults[resultType].title}
               description={quizResults[resultType].description}
               image={quizResults[resultType].image}
+              analysis={quizResults[resultType].analysis}
               onRestart={handleRestart}
+              onContinue={handleContinue}
             />
           )}
         </div>
